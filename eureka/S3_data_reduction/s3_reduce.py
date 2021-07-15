@@ -35,6 +35,7 @@ from importlib import reload
 from ..lib import astropytable
 from ..lib import util
 from . import plots_s3, source_pos
+from tqdm import tqdm
 
 reload(optspex)
 
@@ -127,7 +128,7 @@ def reduceJWST(eventlabel):
         # Report progress
 
         # Read in data frame and header
-        log.writelog(f'Reading file {m + 1} of {num_data_files}')
+        log.writelog(f'\n Reading file {m + 1} of {num_data_files}')
         data = inst.read(meta.segment_list[m], data)
         # Get number of integrations and frame dimensions
         meta.n_int, meta.ny, meta.nx = data.data.shape
@@ -155,7 +156,7 @@ def reduceJWST(eventlabel):
                 data.submask[rowstart:rowend, colstart:colend] = 0
 
         # Perform outlier rejection of sky background along time axis
-        log.writelog('Performing background outlier rejection')
+        log.writelog('Performing background outlier rejection', mute=True)
         meta.bg_y1 = int(meta.src_ypos - meta.bg_hw)
         meta.bg_y2 = int(meta.src_ypos + meta.bg_hw)
         data = inst.flag_bg(data, meta)
@@ -171,7 +172,7 @@ def reduceJWST(eventlabel):
         # print("Performing full-frame outlier rejection...")
 
         if meta.isplots_S3 >= 3:
-            for n in range(meta.n_int):
+            for n in tqdm(range(meta.n_int), desc='Saving Plots: image and background'):
                 # make image+background plots
                 plots_s3.image_and_background(data, meta, n)
 
@@ -197,11 +198,11 @@ def reduceJWST(eventlabel):
         data.medapdata  = np.median(data.apdata, axis=0)
 
         # Extract optimal spectrum with uncertainties
-        log.writelog("  Performing optimal spectral extraction")
+        log.writelog("Performing optimal spectral extraction", mute=True)
         data.optspec = np.zeros(data.stdspec.shape)
         data.opterr  = np.zeros(data.stdspec.shape)
         gain = 1  # FINDME: need to determine correct gain
-        for n in range(meta.n_int):
+        for n in tqdm(range(meta.n_int), desc='Performing optimal spectral extraction'):
             data.optspec[n], data.opterr[n], mask = optspex.optimize(data.apdata[n], data.apmask[n], data.apbg[n],
                                                                      data.stdspec[n], gain, data.apv0[n],
                                                                      p5thresh=meta.p5thresh, p7thresh=meta.p7thresh,
@@ -212,7 +213,7 @@ def reduceJWST(eventlabel):
 
         # Plotting results
         if meta.isplots_S3 >= 3:
-            for n in range(meta.n_int):
+            for n in tqdm(range(meta.n_int), desc='Saving Plots: optimal extraction'):
                 # make optimal spectrum plot
                 plots_s3.optimal_spectrum(data, meta, n)
 
@@ -252,7 +253,7 @@ def reduceJWST(eventlabel):
     shutil.copy(ecffile, meta.workdir)
 
     if meta.isplots_S3 >= 1:
-        log.writelog('Generating figure')
+        print("Saving Plot: 2D light curve")
         # 2D light curve without drift correction
         plots_s3.lc_nodriftcorr(meta, wave_1d, optspec)
 

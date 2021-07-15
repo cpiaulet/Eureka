@@ -3,7 +3,7 @@ from importlib import reload
 import multiprocessing as mp
 from . import sort_nicely as sn
 import os
-
+from tqdm import tqdm
 
 def readfiles(meta):
     """
@@ -93,17 +93,17 @@ def BGsubtraction(data, meta, log, isplots):
         return
 
     # Compute background for each integration
-    log.writelog('  Performing background subtraction')
+    log.writelog('Performing background subtraction', mute=True)
     subbg = np.zeros((subdata.shape))
     if meta.ncpu == 1:
         # Only 1 CPU
-        for n in range(n_int):
+        for n in tqdm(range(n_int), desc='Performing background subtraction'):
             # Fit sky background with out-of-spectra data
             writeBG(inst.fit_bg(subdata[n], submask[n], bg_y1, bg_y2, meta.bg_deg, meta.p3thresh, n, isplots))
     else:
         # Multiple CPUs
         pool = mp.Pool(meta.ncpu)
-        for n in range(n_int):
+        for n in tqdm(range(n_int)):
             res = pool.apply_async(inst.fit_bg,
                                    args=(subdata[n], submask[n], bg_y1, bg_y2, meta.bg_deg, meta.p3thresh, n, isplots),
                                    callback=writeBG)
