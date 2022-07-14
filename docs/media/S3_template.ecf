@@ -20,6 +20,7 @@ p3thresh        10          # X-sigma threshold for outlier rejection during bac
 save_bgsub      False       # Whether or not to save background subtracted FITS files
 
 # Spectral extraction parameters
+record_ypos     False       # Option to record the y position and width for each integration (only records if src_pos_type is gaussian)
 spec_hw         6           # Half-width of aperture region for spectral extraction (relative to source position)
 fittype         smooth      # Method for constructing spatial profile (Options: smooth, meddata, poly, gauss, wavelet, or wavelet2D)
 window_len      11          # Smoothing window length, when fittype = smooth
@@ -34,7 +35,7 @@ curvature       correct     # How to manage the curved trace on the detector (Op
 isplots_S3      3           # Generate few (1), some (3), or many (5) figures (Options: 1 - 5)
 vmin            0.97        # Sets the vmin of the color bar for Figure 3101.
 vmax            1.03        # Sets the vmax of the color bar for Figure 3101.
-time_axis       'left'      # Determines whether the time axis in Figure 3101 is along the y-axis ('left') or the x-axis ('bottom')
+time_axis       'y'         # Determines whether the time axis in Figure 3101 is along the y-axis ('y') or the x-axis ('x')
 testing_S3      False       # Boolean, set True to only use last file and generate select figures
 hide_plots      False       # If True, plots will automatically be closed rather than popping up
 save_output     True        # Save outputs for use in S4

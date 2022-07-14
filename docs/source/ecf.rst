@@ -380,6 +380,11 @@ nspecchan
 Number of spectroscopic channels spread evenly over given wavelength range
 
 
+compute_white
+'''''''''''''
+If True, also compute the white-light lightcurve.
+
+
 wave_min & wave_max
 '''''''''''''''''''
 Start and End of the wavelength range being considered. Set to None to use the shortest/longest extracted wavelength from Stage 3.
@@ -465,6 +470,34 @@ sum_reads
 '''''''''
 Only used for HST analyses. Should differential non-destructive reads be summed together to reduce noise and data volume or not.
 
+compute_ld
+''''''''''
+Whether or not to compute limb-darkening coefficients using exotic-ld.
+
+inst_filter
+'''''''''''
+Used by exotic-ld if compute_ld=True. The filter of JWST/HST instrument, supported list see https://exotic-ld.readthedocs.io/en/latest/views/supported_instruments.html (leave off the observatory and instrument so that JWST_NIRSpec_Prism becomes just Prism).
+
+metallicity
+'''''''''''
+Used by exotic-ld if compute_ld=True. The metallicity of the star.
+
+teff
+''''
+Used by exotic-ld if compute_ld=True. The effective temperature of the star in K.
+
+logg
+''''
+Used by exotic-ld if compute_ld=True. The surface gravity in log g.
+
+exotic_ld_direc
+'''''''''''''''
+Used by exotic-ld if compute_ld=True. The fully qualified path to the directory for ancillary files for exotic-ld.
+
+exotic_ld_grid
+''''''''''''''
+Used by exotic-ld if compute_ld=True. 1D or 3D model grid.
+
 isplots_S4
 ''''''''''
 Sets how many plots should be saved when running Stage 4. A full description of these outputs is available here: :ref:`Stage 4 Output <s4-out>`
@@ -534,6 +567,9 @@ run_myfuncs
 '''''''''''
 Determines the transit and systematics models used in the Stage 5 fitting. Can be one or more of the following: [batman_tr, batman_ecl, sinusoid_pc, expramp, polynomial]
 
+use_generate_ld
+'''''''''''''''
+If you want to use the generated limb-darkening coefficients from Stage 4, use exotic-ld. Otherwise, use None. Important: limb-darkening coefficients are not automatically fixed, change the limb darkening parameters to 'fixed' in the .epf file if they should be fixed instead of fitted! The limb-darkening laws available to exotic-ld are linear, quadratic, 3-parameter and 4-parameter non-linear.
 
 Least-Squares Fitting Parameters
 ''''''''''''''''''''''''''''''''
@@ -648,11 +684,16 @@ This file describes the transit/eclipse and systematics parameters and their pri
       - ``limb_dark`` - The limb darkening model to be used. Options are: ``['uniform', 'linear', 'quadratic', 'kipping2013', 'square-root', 'logarithmic', 'exponential', '4-parameter']``
       - ``uniform`` limb-darkening has no parameters, ``linear`` has a single parameter ``u1``, ``quadratic``, ``kipping2013``, ``square-root``, ``logarithmic``, and ``exponential`` have two parameters ``u1, u2``, ``4-parameter`` has four parameters ``u1, u2, u3, u4``
    - Systematics Parameters - Depending on the model specified in the Stage 5 ECF, set either polynomial model coefficients ``c0--c9`` for 0th to 3rd order polynomials. The polynomial coefficients are numbered as increasing powers (i.e. ``c0`` a constant, ``c1`` linear, etc.). The x-values of the polynomial are the time with respect to the mean of the time of the lightcurve time array. Polynomial fits should include at least ``c0`` for usable results. The exponential ramp model is defined as follows: ``r0*np.exp(-r1*time_local + r2) + r3*np.exp(-r4*time_local + r5) + 1``, where ``r0--r2`` describe the first ramp, and ``r3--r5`` the second. ``time_local`` is the time relative to the first frame of the dataset. If you only want to fit a single ramp, you can omit ``r3--r5`` or set them to ``0``.
-   - White Noise Parameters - options are ``scatter_mult`` for a multiplier to the expected noise from Stage 3 (recommended), or ``scatter_ppm`` to directly fit the noise level in ppm
+   - White Noise Parameters - options are ``scatter_mult`` for a multiplier to the expected noise from Stage 3 (recommended), or ``scatter_ppm`` to directly fit the noise level in ppm.
 
 
 
-``Free`` determines whether the parameter is ``fixed``, ``free``, ``independent``, or ``shared``. ``fixed`` parameters are fixed in the fitting routine and not fit for. ``free`` parameters are fit for according to the specified prior distribution, independently for each wavelength channel. ``shared`` parameters are fit for according to the specified prior distribution, but are common to all wavelength channels. ``independent`` variables set auxiliary functions needed for the fitting routines.
+``Free`` determines whether the parameter is ``fixed``, ``free``, ``white_fixed``, ``white_free``, ``independent``, or ``shared``.
+``fixed`` parameters are fixed in the fitting routine and not fit for.
+``free`` parameters are fit for according to the specified prior distribution, independently for each wavelength channel.
+``white_fixed`` and ``white_free`` parameters are first fit using ``free`` on the white-light light curve to update the prior for the parameter, and then treated as ``fixed`` or ``free`` (respectively) for the spectral fits.
+``shared`` parameters are fit for according to the specified prior distribution, but are common to all wavelength channels.
+``independent`` variables set auxiliary functions needed for the fitting routines.
 
 
 
