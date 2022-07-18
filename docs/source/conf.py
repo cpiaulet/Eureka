@@ -15,18 +15,19 @@ import sys
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../'))
 sys.path.insert(0, os.path.abspath('../../'))
+sys.path.insert(0, os.path.abspath('../../src/'))
+
+from eureka import __version__
 
 import sphinx_rtd_theme
 
 # -- Project information -----------------------------------------------------
 
 project = 'Eureka!'
-copyright = '2021, Eureka! pipeline developers'
+copyright = '2022, Eureka! pipeline developers'
 author = 'Eureka! pipeline developers'
 
-# The full version, including alpha/beta/rc tags
-release = ''
-
+version = __version__
 
 # -- General configuration ---------------------------------------------------
 
@@ -64,8 +65,8 @@ html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = []
 
+# Ignoring duplicated section warnings in api file
+suppress_warnings = ['autosectionlabel.*']
 
-from recommonmark.parser import CommonMarkParser
-
-source_parsers = {'.md': CommonMarkParser}
-source_suffix = ['.rst', '.md']
+# Remove stub file not found warnings
+numpydoc_class_members_toctree = False

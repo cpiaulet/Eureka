@@ -49,7 +49,7 @@ coverage.xml
 *.py,cover
 .hypothesis/
 .pytest_cache/
-eureka/tests/data
+tests/data
 
 # Translations
 *.mo
@@ -130,16 +130,35 @@ dmypy.json
 .pyre/
 
 *.DS_Store
+*.swp
 
-# ecf file 
+# ecf files
 *.ecf
+
+# epf files
+*.epf
 
 # VS Code workspaces
 *.code-workspace
-.vscode/settings.json
-
-# Ignore installed packages for wfc3 branch
-image_registration/
+.vscode
 
 # Compiled niriss_cython file
 niriss_cython.c
+
+# Dockerfiles
+Dockerfile
+docker-compose.yml
+docker-setup.sh
+
+# Compiled JOSS paper files
+paper.pdf
+paper.jats
+
+# Ignores for Caroline
+eureka_analysis/JWST/run_eureka_demo.py
+
+# Ignores for Taylor
+*.dat
+
+# Ignore version.py to allow automated version numbering
+version.py
