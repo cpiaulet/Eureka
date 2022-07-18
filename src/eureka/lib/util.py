@@ -5,13 +5,15 @@ from astropy.io import fits
 from . import sort_nicely as sn
 
 
-def readfiles(meta):
+def readfiles(meta, log):
     """Reads in the files saved in topdir + inputdir and saves them into a list.
 
     Parameters
     ----------
     meta : eureka.lib.readECF.MetaClass
         The metadata object.
+    log : logedit.Logedit
+        The current log.
 
     Returns
     -------
@@ -40,11 +42,25 @@ def readfiles(meta):
         for fname in glob.glob(cal_path+'*'+meta.suffix+'.fits'):
             meta.segment_list.append(fname)
 
-    with fits.open(meta.segment_list[-1]) as hdulist:
-        # Figure out which instrument we are using
-        meta.inst = hdulist[0].header['INSTRUME'].lower()
-
     meta.segment_list = np.array(sn.sort_nicely(meta.segment_list))
+
+    meta.num_data_files = len(meta.segment_list)
+    if meta.num_data_files == 0:
+        raise AssertionError(f'Unable to find any "{meta.suffix}.fits" files '
+                             f'in the inputdir: \n"{meta.inputdir}"!\n'
+                             f'You likely need to change the inputdir in '
+                             f'{meta.filename} to point to the folder '
+                             f'containing the "{meta.suffix}.fits" files.')
+    else:
+        mute = hasattr(meta, 'verbose') and not meta.verbose
+        log.writelog(f'\nFound {meta.num_data_files} data file(s) '
+                     f'ending in {meta.suffix}.fits',
+                     mute=mute)
+
+        with fits.open(meta.segment_list[-1]) as hdulist:
+            # Figure out which instrument we are using
+            meta.inst = hdulist[0].header['INSTRUME'].lower()
+
     return meta
 
 
@@ -77,7 +93,7 @@ def trim(data, meta):
 
 
 def check_nans(data, mask, log, name=''):
-    """Checks where a data array has NaNs.
+    """Checks where a data array has NaNs or infs.
 
     Parameters
     ----------
@@ -95,14 +111,17 @@ def check_nans(data, mask, log, name=''):
     -------
     mask : ndarray
         Output mask where 0 will be written where the input data array has NaNs
+        or infs.
     """
-    num_nans = np.sum(np.isnan(data.values))
+    data = np.ma.masked_where(mask == 0, np.copy(data))
+    num_nans = np.sum(np.ma.masked_invalid(data).mask)
     if num_nans > 0:
-        log.writelog(f"  WARNING: {name} has {num_nans} NaNs. Your subregion "
-                     f"may be off the edge of the detector subarray.\n"
-                     f"    Masking NaN region and continuing, but you should "
-                     f"really stop and reconsider your choices.")
-        inan = np.where(np.isnan(data))
+        log.writelog(f"  WARNING: {name} has {num_nans} NaNs/infs. Your "
+                     "subregion may be off the edge of the detector "
+                     "subarray.\n    Masking NaN region and continuing, "
+                     "but you should really stop and reconsider your"
+                     "choices.")
+        inan = np.where(np.ma.masked_invalid(data).mask)
         # subdata[inan]  = 0
         mask[inan] = 0
     return mask

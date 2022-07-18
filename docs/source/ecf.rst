@@ -33,7 +33,7 @@ skip_*
 If True, skip the named step. 
 
 .. note::
-   Note that some instruments and observing modes might skip a step either way! See `here <https://jwst-pipeline.readthedocs.io/en/latest/jwst/pipeline/calwebb_detector1.html>`__ for the list of steps run for each instrument/mode by the STScI's JWST pipeline.
+   Note that some instruments and observing modes might skip a step either way! See the `calwebb_detector1 docs <https://jwst-pipeline.readthedocs.io/en/latest/jwst/pipeline/calwebb_detector1.html>`__ for the list of steps run for each instrument/mode by the STScI's JWST pipeline.
 
 topdir + inputdir
 '''''''''''''''''
@@ -52,7 +52,7 @@ default_ramp_fit_weighting
 Define the method by which individual frame pixels will be weighted during the default ramp fitting process. The is specifically for the case where ``ramp_fit_algorithm`` is ``default``. Options are ``default``, ``fixed``, ``interpolated``, ``flat``, or ``custom``.
 
 
-``default``: Slope estimation using a least-squares algorithm with an "optimal" weighting, see `here <https://jwst-pipeline.readthedocs.io/en/latest/jwst/ramp_fitting/description.html#optimal-weighting-algorithm>`__.
+``default``: Slope estimation using a least-squares algorithm with an "optimal" weighting, see the `ramp_fitting docs <https://jwst-pipeline.readthedocs.io/en/latest/jwst/ramp_fitting/description.html#optimal-weighting-algorithm>`__.
 
 In short this weights each pixel, :math:`i`, within a slope following :math:`w_i = (i - i_{midpoint})^P`, where the exponent :math:`P` is selected depending on the estimated signal-to-noise ratio of each pixel (see link above). 
 
@@ -100,7 +100,7 @@ skip_*
 If True, skip the named step.
 
 .. note::
-	Note that some instruments and observing modes might skip a step either way! See `here <https://jwst-pipeline.readthedocs.io/en/latest/jwst/pipeline/calwebb_spec2.html>`__ for the list of steps run for each instrument/mode by the STScI's JWST pipeline.
+	Note that some instruments and observing modes might skip a step either way! See the `calwebb_spec2 docs <https://jwst-pipeline.readthedocs.io/en/latest/jwst/pipeline/calwebb_spec2.html>`__ for the list of steps run for each instrument/mode by the STScI's JWST pipeline.
 
 
 testing_S2
@@ -182,7 +182,7 @@ Only used for HST analyses. The folder with respect to hst_cal where leapsecond 
 
 flatfile
 ''''''''
-Only used for HST analyses. The path with respect to hst_cal to the flatfield file to use. A WFC3/G102 flat can be downloaded `here <http://www.stsci.edu/~WFC3/grism-resources/G102/WFC3.IR.G102.flat.2.fits.gz>`_ and a WFC3/G141 flat can be downloaded `here <http://www.stsci.edu/~WFC3/grism-resources/G141/WFC3.IR.G141.flat.2.fits.gz>`_; be sure to unzip the files after downloading them.
+Only used for HST analyses. The path with respect to hst_cal to the flatfield file to use. The WFC3 flats can be downloaded `here (G102) <http://www.stsci.edu/~WFC3/grism-resources/G102/WFC3.IR.G102.flat.2.fits.gz>`_ and `here (G141) <http://www.stsci.edu/~WFC3/grism-resources/G141/WFC3.IR.G141.flat.2.fits.gz>`_; be sure to unzip the files after downloading them.
 
 ywindow & xwindow
 '''''''''''''''''
@@ -224,7 +224,7 @@ diffthresh
 Only used for HST analyses. Sigma theshold for bad pixel identification in the differential non-destructive reads (NDRs).
 
 record_ypos
-''''''''''
+'''''''''''
 Option to record the cross-dispersion trace position and width (if Gaussian fit) for each integration.
 
 bg_hw & spec_hw
@@ -309,7 +309,7 @@ iref
 Only used for HST analyses. The file indices to use as reference frames for 2D drift correction. This should be a 1-2 element list with the reference indices for each scan direction.
 
 curvature
-''''''''
+'''''''''
 Used only for G395H observations which display curvature in the trace. Current options: 'None', 'correct'. Using 'None' will turn off any curvature correction and is included for users with custom routines that will handle the curvature of the trace. Using 'correct' will bring the center of mass of each column to the center of the detector and perform the extraction on this straightened trace. This option should be used with fittype = 'meddata'.
 
 isplots_S3
@@ -396,7 +396,7 @@ If True, run S4 on all of the apertures considered in S3. Otherwise the code wil
 
 
 recordDrift
-''''''''
+'''''''''''
 If True, compute drift/jitter in 1D spectra (always recorded if correctDrift is True)
 
 
@@ -565,7 +565,7 @@ Fitting routines to run for Stage 5 lightcurve fitting. Can be one or more of th
 
 run_myfuncs
 '''''''''''
-Determines the transit and systematics models used in the Stage 5 fitting. Can be one or more of the following: [batman_tr, batman_ecl, sinusoid_pc, expramp, polynomial]
+Determines the transit and systematics models used in the Stage 5 fitting. Can be one or more of the following: [batman_tr, batman_ecl, sinusoid_pc, expramp, polynomial, step]
 
 use_generate_ld
 '''''''''''''''
@@ -683,7 +683,10 @@ This file describes the transit/eclipse and systematics parameters and their pri
    - Limb Darkening Parameters
       - ``limb_dark`` - The limb darkening model to be used. Options are: ``['uniform', 'linear', 'quadratic', 'kipping2013', 'square-root', 'logarithmic', 'exponential', '4-parameter']``
       - ``uniform`` limb-darkening has no parameters, ``linear`` has a single parameter ``u1``, ``quadratic``, ``kipping2013``, ``square-root``, ``logarithmic``, and ``exponential`` have two parameters ``u1, u2``, ``4-parameter`` has four parameters ``u1, u2, u3, u4``
-   - Systematics Parameters - Depending on the model specified in the Stage 5 ECF, set either polynomial model coefficients ``c0--c9`` for 0th to 3rd order polynomials. The polynomial coefficients are numbered as increasing powers (i.e. ``c0`` a constant, ``c1`` linear, etc.). The x-values of the polynomial are the time with respect to the mean of the time of the lightcurve time array. Polynomial fits should include at least ``c0`` for usable results. The exponential ramp model is defined as follows: ``r0*np.exp(-r1*time_local + r2) + r3*np.exp(-r4*time_local + r5) + 1``, where ``r0--r2`` describe the first ramp, and ``r3--r5`` the second. ``time_local`` is the time relative to the first frame of the dataset. If you only want to fit a single ramp, you can omit ``r3--r5`` or set them to ``0``.
+   - Systematics Parameters. Depends on the model specified in the Stage 5 ECF.
+      - ``c0--c9`` - Coefficients for 0th to 3rd order polynomials. The polynomial coefficients are numbered as increasing powers (i.e. ``c0`` a constant, ``c1`` linear, etc.). The x-values of the polynomial are the time with respect to the mean of the time of the lightcurve time array. Polynomial fits should include at least ``c0`` for usable results.
+      - ``r0--r2`` and ``r3--r5`` - Coefficients for the first and second exponential ramp models. The exponential ramp model is defined as follows: ``r0*np.exp(-r1*time_local + r2) + r3*np.exp(-r4*time_local + r5) + 1``, where ``r0--r2`` describe the first ramp, and ``r3--r5`` the second. ``time_local`` is the time relative to the first frame of the dataset. If you only want to fit a single ramp, you can omit ``r3--r5`` or set them as fixed to ``0``. Users should not fit all three parameters from each model at the same time as there are significant degeneracies between the three parameters; instead, it is recommended to set ``r0`` (or ``r3`` for the second ramp) to the sign of the ramp (-1 for decaying, 1 for rising) while fitting for the remaining coefficients.
+      - ``step0`` and ``steptime0`` - The step size and time for the first step-function (useful for removing mirror segment tilt events). For additional steps, simply increment the integer at the end (e.g. ``step1`` and ``steptime1``).
    - White Noise Parameters - options are ``scatter_mult`` for a multiplier to the expected noise from Stage 3 (recommended), or ``scatter_ppm`` to directly fit the noise level in ppm.
 
 
