@@ -236,6 +236,8 @@ def source_pos_gauss(flux, meta, m, integ=0):
     - 2022-07-11 Caroline Piaulet
         Enable recording of the width if the source is fitted with a Gaussian
         + add an option to fit any integration (not hardcoded to be the first)
+    - 2022-07-11 Caroline Piaulet
+        fix in case the flux array has negative values
     '''
     x_dim = flux.shape[1]
 
@@ -244,6 +246,10 @@ def source_pos_gauss(flux, meta, m, integ=0):
     y_pixels = np.arange(0, x_dim)[pos_max-meta.spec_hw:pos_max+meta.spec_hw]
     sum_row = np.ma.sum(flux[integ],
                         axis=1)[pos_max-meta.spec_hw:pos_max+meta.spec_hw]
+    
+    # Make sure that sum_row has only positive values
+    if np.ma.min(sum_row)<0.:
+        sum_row += np.abs(np.ma.min(sum_row))
 
     # Initial Guesses
     sigma0 = np.ma.sqrt(np.ma.sum(sum_row*(y_pixels-pos_max)**2) /
